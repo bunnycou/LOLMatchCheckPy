@@ -1,4 +1,4 @@
-import requests, os, json
+import sys, os, requests, json
 
 API_AMERICAS = "https://americas.api.riotgames.com/lol/match/v5/matches/"
 API_ASIA = "https://asia.api.riotgames.com/lol/match/v5/matches/"
@@ -24,13 +24,17 @@ def matchreq(url, gameID):
     else:
         return "400"
 
-def main():
+def main(arg):
     region = "null"
-    gameID = input("Game ID: ")
+
+    if arg == "none":
+        gameID = input("Game ID: ")
+    else:
+        gameID = arg
     
     
     if "_" in gameID:
-        region = gameID.split("_")[0]
+        region = gameID.split("_")[0].upper()
         gameID = gameID.split("_")[1]
     
     if region == "null":
@@ -63,28 +67,35 @@ def main():
     else:
         # check selected region
         if region in AMERICAS_PRE:
+            print("checking " + region+"_"+gameID + "...")
             response = matchreq(API_AMERICAS, region + "_" + gameID)
             if response != "400":
                 return response.json()
         
         if region in EUROPE_PRE:
+            print("checking " + region+"_"+gameID + "...")
             response = matchreq(API_EUROPE, region + "_" + gameID)
             if response != "400":
                 return response.json()
 
         if region in SEA_PRE:
+            print("checking " + region+"_"+gameID + "...")
             response = matchreq(API_SEA, region + "_" + gameID)
             if response != "400":
                 return response.json()
         
         if region in ASIA_PRE:
+            print("checking " + region+"_"+gameID + "...")
             response = matchreq(API_ASIA, region + "_" + gameID)
             if response != "400":
                 return response.json()
 
     return "No Results for " + gameID
 
-jsonobj = main()
+if len(sys.argv) > 1:
+    jsonobj = main(sys.argv[1])
+else:
+    jsonobj = main("none")
 
 if jsonobj is not str:
     print("Found game, creating json")
