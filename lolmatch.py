@@ -87,8 +87,9 @@ def main():
 jsonobj = main()
 
 if jsonobj is not str:
+    print("Found game, creating json")
     fname = jsonobj["metadata"]["matchId"]+".json"
-    if os.path.isfile(fname):
+    if os.path.isfile(fname): # delete if already exists for some reason
         os.remove(fname)
     file = open(fname, "x")
     file.write(json.dumps(jsonobj, indent=4))
