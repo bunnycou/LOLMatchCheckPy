@@ -1,9 +1,16 @@
-import sys, os, requests, json
+import sys, os, requests, json, datetime
 
 API_AMERICAS = "https://americas.api.riotgames.com/lol/match/v5/matches/"
 API_ASIA = "https://asia.api.riotgames.com/lol/match/v5/matches/"
 API_EUROPE = "https://europe.api.riotgames.com/lol/match/v5/matches/"
 API_SEA = "https://sea.api.riotgames.com/lol/match/v5/matches/"
+
+class player:
+    def __init__(self, name, level, role, champ):
+        self.name = name
+        self.level = level
+        self.role = role
+        self.champ = champ
 
 if os.path.isfile("key.txt"):
     KEY = open("key.txt").readline()
@@ -97,10 +104,46 @@ if len(sys.argv) > 1:
 else:
     jsonobj = main("none")
 
-if jsonobj is not str:
-    print("Found game, creating json")
-    fname = jsonobj["metadata"]["matchId"]+".json"
-    if os.path.isfile(fname): # delete if already exists for some reason
+def createfile(fname):
+    if os.path.isfile(fname):
         os.remove(fname)
-    file = open(fname, "x")
-    file.write(json.dumps(jsonobj, indent=4))
+    return open(fname, "x")
+
+if jsonobj is not str:
+    print("Found game, creating json and parsed text file")
+
+    # create json
+    fnamejson = jsonobj["metadata"]["matchId"]+".json"
+    # if os.path.isfile(fname): # delete if already exists for some reason
+    #     os.remove(fname)
+    # file = open(fname, "x")
+    jsonfile = createfile(fnamejson)
+    jsonfile.write(json.dumps(jsonobj, indent=4))
+
+    # create text for file
+    info = jsonobj["info"]
+    time = datetime.datetime.fromtimestamp(info["gameCreation"]/1000).strftime('%Y-%m-%d %H:%M:%S')
+    version = info["gameVersion"]
+    blueSide = list()
+    redSide = list()
+    for obj in info["participants"]:
+        newplayer = player(name= obj["summonerName"], level= obj["summonerLevel"], role= obj["teamPosition"], champ= obj["championName"])
+        if obj["teamId"] == 100: # blue side
+            blueSide.append(newplayer)
+        else:
+            redSide.append(newplayer)
+
+    textff = f'MatchID: {jsonobj["metadata"]["matchId"]}\nDate: {time}\nVersion: {version}'
+
+    textff += "\n\nBlueSide\n----------"
+    for player in blueSide:
+        textff+=f"\n- {player.name}, Lvl {player.level}\nPlaying {player.champ} in {player.role}"
+
+    textff+="\n\nRedSide\n----------"
+    for player in redSide:
+        textff+=f"\n- {player.name}, Lvl {player.level}\nPlaying {player.champ} in {player.role}"
+
+    # create file
+    fnametxt = jsonobj["metadata"]["matchId"]+".txt"
+    filetxt = createfile(fnametxt)
+    filetxt.write(textff)
