@@ -1,7 +1,7 @@
 # LOL Match Check Py
 ### Requires `requests` package!
 
-`pip intall requests`
+`pip install requests`
 
 ## Input formatting/Usage
 input can be `[prefix]_[gameid]` or `[gameid]` if you don't know the region
