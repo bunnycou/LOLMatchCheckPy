@@ -97,7 +97,7 @@ def main(arg):
             if response != "400":
                 return response.json()
 
-    return "No Results for " + gameID
+    return "No Results for GameId: " + gameID
 
 if len(sys.argv) > 1:
     jsonobj = main(sys.argv[1])
@@ -109,7 +109,7 @@ def createfile(fname):
         os.remove(fname)
     return open(fname, "x")
 
-if jsonobj is not str:
+if type(jsonobj) is not str:
     print("Found game, creating json and parsed text file")
 
     # create json
@@ -147,3 +147,5 @@ if jsonobj is not str:
     fnametxt = jsonobj["metadata"]["matchId"]+".txt"
     filetxt = createfile(fnametxt)
     filetxt.write(textff)
+else:
+    print(jsonobj)
